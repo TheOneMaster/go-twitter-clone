@@ -13,13 +13,16 @@ const PortNumber = 8080
 
 func main() {
 	r := chi.NewRouter()
-
-	fs := http.FileServer(http.Dir("static"))
-
 	r.Use(middleware.Logger)
 
+	fs := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+
+	// GET Routes
 	r.Get("/", handlers.IndexHandler)
+	r.Get("/humans.txt", handlers.HumansHandler)
+
+	// POST Routes
 
 	fmt.Printf("Running on http://localhost:%d\n", PortNumber)
 	http.ListenAndServe(fmt.Sprintf(":%d", PortNumber), r)

@@ -9,7 +9,11 @@
     </div>
 
     <div class="flex-1">
-        Test 2
+        Testing 2
+
+        {{ range .Messages}}
+            {{template "message.html" .}}
+        {{end}}
     </div>
 </div>
 {{end}}

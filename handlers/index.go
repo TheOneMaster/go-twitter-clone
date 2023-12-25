@@ -2,29 +2,29 @@ package handlers
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
-	"os"
-	"path/filepath"
+
+	"github.com/TheOneMaster/go-twitter-clone/db"
+	"github.com/TheOneMaster/go-twitter-clone/templates"
 )
 
+type IndexPage struct {
+	Messages []db.FrontEndMessage
+}
+
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-
-	wd, err := os.Getwd()
-	if err != nil {
-		ServerError(w)
-	}
-
-	base_layout := filepath.Join(wd, "templates/layouts/base.html")
-	index_layout := filepath.Join(wd, "templates/layouts/index.html")
-
-	t, err := template.ParseFiles(base_layout, index_layout)
+	t, err := templates.LoadFiles("layouts/base.html", "layouts/index.html", "components/username.html")
 	if err != nil {
 		fmt.Println(err)
 		PageNotFound(w)
 	}
 
-	err = t.Execute(w, nil)
+	messages := db.GetMessages()
+	pageProps := IndexPage{
+		Messages: messages,
+	}
+
+	err = t.Execute(w, pageProps)
 	if err != nil {
 		ServerError(w)
 	}
