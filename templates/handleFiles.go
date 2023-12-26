@@ -8,13 +8,16 @@ import (
 
 const templatePath = "./templates/"
 
+/*
+Loads page templates. Already includes components.
+*/
 func LoadFiles(files ...string) (*template.Template, error) {
 	var t *template.Template
 	wd, err := os.Getwd()
 	if err != nil {
 		return t, err
 	}
-	templatePath := path.Join(wd, "./templates/")
+	templatePath := path.Join(wd, "./templates/layouts")
 
 	var filePaths []string
 	for _, file := range files {
@@ -39,4 +42,16 @@ func loadComponents(workingTemplate *template.Template) {
 
 	componentsPath := path.Join(wd, templatePath, "./components/*.html")
 	workingTemplate.ParseGlob(componentsPath)
+}
+
+func LoadFragment(file string) (*template.Template, error) {
+	var t *template.Template
+	wd, err := os.Getwd()
+	if err != nil {
+		return t, err
+	}
+	templatePath := path.Join(wd, "./templates/components", file)
+
+	t, err = template.ParseFiles(templatePath)
+	return t, err
 }
