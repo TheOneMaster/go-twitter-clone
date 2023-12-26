@@ -1,2 +1,7 @@
+.vscode
+
+# Database
+db/database.db
+
 # Generated files
 static/main.css
