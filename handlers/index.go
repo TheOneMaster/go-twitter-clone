@@ -8,19 +8,22 @@ import (
 	"github.com/TheOneMaster/go-twitter-clone/templates"
 )
 
-type IndexPage struct {
+type IndexProps struct {
 	Messages []db.FrontEndMessage
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := templates.LoadFiles("layouts/base.html", "layouts/index.html", "components/username.html")
+func IndexPage(w http.ResponseWriter, r *http.Request) {
+	t, err := templates.LoadFiles("base.html", "index.html")
 	if err != nil {
 		fmt.Println(err)
 		PageNotFound(w)
 	}
 
-	messages := db.GetMessages()
-	pageProps := IndexPage{
+	messages := db.DBMessages()
+
+	fmt.Printf("Number of messages: %d\n", len(messages))
+
+	pageProps := IndexProps{
 		Messages: messages,
 	}
 
@@ -28,15 +31,4 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		ServerError(w)
 	}
-
-}
-
-func PageNotFound(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404"))
-}
-
-func ServerError(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("server error"))
 }
