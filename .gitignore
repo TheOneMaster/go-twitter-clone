@@ -2,6 +2,7 @@
 
 # Database
 db/database.db
+db/statements/test_data.sql
 
 # Generated files
 static/main.css
