@@ -1,0 +1,12 @@
+<form hx-post="/login" hx-target="this" hx-swap="outerHTML" class="grid grid-cols-3 gap-y-5">
+        {{if .Incorrect}}
+        <div class="col-span-3 flex items-center justify-center">
+            <span class="text-red-500">Incorrect Username or Password</span>
+        </div>
+        {{end}}
+        <label class="text-white">Username</label>
+        <input name="username" type="text" placeholder="Username" class="col-span-2" />
+        <label class="text-white">Password</label>
+        <input name="password" type="password" placeholder="Password" class="col-span-2" />
+        <button type="submit" class="btn btn-blue col-start-2">Login</button>
+</form>
