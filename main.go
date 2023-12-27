@@ -25,10 +25,12 @@ func main() {
 	// GET Routes
 	r.Get("/", handlers.IndexPage)
 	r.Get("/login", handlers.LoginPage)
+	r.Get("/register", handlers.RegisterPage)
 	r.Get("/humans.txt", handlers.HumansHandler)
 
 	// POST Routes
 	r.Post("/login", handlers.LoginRequest)
+	r.Post("/register", handlers.RegisterRequest)
 
 	fmt.Printf("Running on http://localhost:%d\n", PortNumber)
 	http.ListenAndServe(fmt.Sprintf(":%d", PortNumber), r)

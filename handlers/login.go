@@ -8,15 +8,7 @@ import (
 )
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
-	t, err := templates.LoadFiles("base.html", "login.html")
-	if err != nil {
-		PageNotFound(w)
-	}
-
-	err = t.Execute(w, nil)
-	if err != nil {
-		ServerError(w)
-	}
+	ServeStaticPage("login.html", w, r)
 }
 
 type loginFormProps struct {
@@ -27,13 +19,13 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 	loginProps := loginFormProps{}
 
 	username := r.FormValue("username")
-	_ = r.FormValue("password")
+	password := r.FormValue("password")
 
-	user_exists := username != "" && db.CheckUserExists(username)
-	password_correct := true
+	validate := db.ValidateLogin(username, password)
 
-	if user_exists && password_correct {
+	if validate {
 		w.Header().Set("HX-Redirect", "/")
+		return
 	}
 
 	loginProps.Incorrect = true

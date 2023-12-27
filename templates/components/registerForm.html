@@ -1,0 +1,21 @@
+<form hx-post="/register" hx-target="this" hx-swap="outerHTML" class="grid grid-cols-3 gap-y-5">
+    {{if .Username}}
+    <div class="col-span-3 flex items-center justify-center">
+        <span class="text-red-500">Username is taken</span>
+    </div>
+    {{end}}
+
+    {{if .ServerError}}
+    <div class="col-span-3 flex items-center justify-center">
+        <span class="text-red-500">Server Error. Please try again</span>
+    </div>
+    {{end}}
+
+    <label class="text-white" for="username">Username</label>
+    <input class="col-span-2" name="username" type="text" placeholder="Username" />
+    <label class="text-white" for="displayName">Display Name</label>
+    <input class="col-span-2" name="displayName" type="text" placeholder="Display Name" />
+    <label class="text-white" for="password">Password</label>
+    <input class="col-span-2" name="password" type="password" />
+    <button class="btn btn-blue col-start-2">Register</button>
+</form>

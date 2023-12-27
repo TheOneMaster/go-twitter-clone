@@ -3,7 +3,8 @@ CREATE TABLE Users (
     username TEXT NOT NULL UNIQUE,
     displayName TEXT,
     photo TEXT,
-    creationTime DATETIME DEFAULT CURRENT_TIMESTAMP
+    creationTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+    password TEXT NOT NULL
 );
 
 CREATE TABLE Messages (
