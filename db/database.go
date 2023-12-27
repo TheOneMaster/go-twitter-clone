@@ -1,7 +1,7 @@
 package db
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -21,7 +21,7 @@ func DBMessages() []FrontEndMessage {
 	var messages []FrontEndMessage
 	rows, err := Connection.Queryx("SELECT displayName, messageText, time FROM Messages, Users WHERE author==Users.id;")
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		log.Printf("Error: %s\n", err)
 		return messages
 	}
 	defer rows.Close()
@@ -30,7 +30,7 @@ func DBMessages() []FrontEndMessage {
 		var m FrontEndMessage
 		err = rows.StructScan(&m)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
+			log.Printf("Error: %s\n", err)
 		}
 		messages = append(messages, m)
 	}
@@ -43,10 +43,20 @@ func InitConnection() {
 		panic(err)
 	}
 
-	if err = db.Ping(); err != nil {
-		fmt.Println("Database not properly opened")
+	_, err = db.Exec("PRAGMA journal_mode=WAL")
+	if err != nil {
+		panic(err)
 	}
 
-	fmt.Println("DB Connection established")
+	_, err = db.Exec("PRAGMA busy_timeout=5000")
+	if err != nil {
+		panic(err)
+	}
+
+	if err = db.Ping(); err != nil {
+		log.Println("Database not properly opened")
+	}
+
+	log.Println("DB Connection established")
 	Connection = db
 }
