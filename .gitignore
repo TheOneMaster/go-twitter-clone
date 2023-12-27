@@ -1,7 +1,7 @@
 .vscode
 
 # Database
-db/database.db
+db/*.db*
 db/statements/test_data.sql
 
 # Generated files
