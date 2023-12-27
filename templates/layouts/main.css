@@ -13,3 +13,8 @@
 .btn-blue:hover {
     @apply bg-blue-700
 }
+
+@font-face {
+    font-family: "CothamSans";
+    src: url("CothamSans.otf")
+}
