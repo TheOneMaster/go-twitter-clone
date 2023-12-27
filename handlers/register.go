@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/TheOneMaster/go-twitter-clone/db"
@@ -26,23 +25,21 @@ func RegisterRequest(w http.ResponseWriter, r *http.Request) {
 	// Currently only checking for username, no password constraints
 	err := db.CheckUserExists(username)
 
-	fmt.Printf("User Exists: %s\n", err)
-
-	if err != nil {
-		user := db.User{
-			Username:    username,
-			DisplayName: displayName,
-			Password:    password,
-		}
-		if err = db.SaveUser(user); err != nil {
-			registerProps.ServerError = true
-			ServeFragment(w, "registerForm.html", registerProps)
-			return
-		}
-		w.Header().Set("HX-Redirect", "/")
+	if err == nil {
+		registerProps.Username = true
+		ServeFragment(w, "loginForm.html", registerProps)
 		return
 	}
 
-	registerProps.Username = true
-	ServeFragment(w, "loginForm.html", registerProps)
+	user := db.User{
+		Username:    username,
+		DisplayName: displayName,
+		Password:    password,
+	}
+	if err = db.SaveUser(user); err != nil {
+		registerProps.ServerError = true
+		ServeFragment(w, "registerForm.html", registerProps)
+		return
+	}
+	w.Header().Set("HX-Redirect", "/")
 }
