@@ -4,11 +4,10 @@ import (
 	"net/http"
 
 	"github.com/TheOneMaster/go-twitter-clone/db"
-	"github.com/TheOneMaster/go-twitter-clone/templates"
 )
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
-	ServeStaticPage("login.html", w, r)
+	ServeStaticPage("login.html", w)
 }
 
 type loginFormProps struct {
@@ -24,17 +23,10 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 	validate := db.ValidateLogin(username, password)
 
 	if validate {
-		w.Header().Set("HX-Redirect", "/")
+		redirect("/", w)
 		return
 	}
 
 	loginProps.Incorrect = true
-	t, err := templates.LoadFragment("loginForm.html")
-
-	if err != nil {
-		return
-	}
-
-	t.Execute(w, loginProps)
-
+	ServeFragment(w, "loginForm.html", loginProps)
 }

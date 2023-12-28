@@ -20,7 +20,7 @@ func ServerError(w http.ResponseWriter) {
 	w.Write([]byte("server error"))
 }
 
-func ServeStaticPage(pageFile string, w http.ResponseWriter, r *http.Request) {
+func ServeStaticPage(pageFile string, w http.ResponseWriter) {
 	t, err := templates.LoadFiles("base.html", pageFile)
 	if err != nil {
 		PageNotFound(w)
@@ -38,4 +38,8 @@ func ServeFragment(w http.ResponseWriter, fragment string, data any) {
 		ServerError(w)
 	}
 	t.Execute(w, data)
+}
+
+func redirect(path string, w http.ResponseWriter) {
+	w.Header().Set("HX-Redirect", path)
 }

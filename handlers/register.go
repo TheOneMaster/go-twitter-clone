@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterPage(w http.ResponseWriter, r *http.Request) {
-	ServeStaticPage("register.html", w, r)
+	ServeStaticPage("register.html", w)
 }
 
 type registerFormProps struct {
@@ -22,7 +22,7 @@ func RegisterRequest(w http.ResponseWriter, r *http.Request) {
 	displayName := r.FormValue("displayName")
 	password := r.FormValue("password")
 
-	// Currently only checking for username, no password constraints
+	// TODO: Add password constraints
 	err := db.CheckUserExists(username)
 
 	if err == nil {
@@ -41,5 +41,5 @@ func RegisterRequest(w http.ResponseWriter, r *http.Request) {
 		ServeFragment(w, "registerForm.html", registerProps)
 		return
 	}
-	w.Header().Set("HX-Redirect", "/")
+	redirect("/", w)
 }
