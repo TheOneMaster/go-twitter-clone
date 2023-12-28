@@ -7,8 +7,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const DB_FILE = "db/database.db"
-
 var Connection *sqlx.DB
 
 type FrontEndMessage struct {
@@ -37,8 +35,8 @@ func DBMessages() []FrontEndMessage {
 	return messages
 }
 
-func InitConnection() {
-	db, err := sqlx.Open("sqlite3", DB_FILE)
+func InitConnection(url string) {
+	db, err := sqlx.Open("sqlite3", url)
 	if err != nil {
 		panic(err)
 	}

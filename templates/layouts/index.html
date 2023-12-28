@@ -1,18 +1,44 @@
 {{define "title"}}Twitter Clone{{end}}
 
 {{define "content"}}
-<div class="p-5 h-screen flex flex-row">
+<div class="h-screen flex flex-row">
     <!-- <p class="text-white">Testing</p> -->
 
-    <div class="">
-        Test
+    <div class="p-4">
+        {{if .LoggedIn}}
+            <div>
+                Logged In
+                {{if .User.Photo}}
+                <div>
+                    <img src="{{ .User.Photo }}" alt="profile-image"/>
+                </div>
+                {{end}}
+                <span class="text-slate-400">{{ .User.Username }}</span>
+                <h2 class="text-white">{{ .User.DisplayName }}</h2>
+            </div>
+        {{else}}
+            <div>
+                <a href="/login">
+                    <button class="btn btn-blue">Log In</button>
+                </a>
+                <a href="/register">
+                    <button class="btn btn-blue">Register</button>
+                </a>
+            </div>
+        {{end}}
     </div>
 
-    <div class="flex-1">
-        Testing 2
+    <div class="flex flex-1 flex-col">
+        <h2 class="text-white text-xl font-header py-5">Messages</h2>
 
         {{ range .Messages}}
             {{template "message.html" .}}
+        {{end}}
+
+        {{if .LoggedIn}}
+        <div class="relative bottom-5 z-10 mt-auto pr-5 flex">
+            <textarea class="resize-none p-2 flex-1"></textarea>
+        </div>
         {{end}}
     </div>
 </div>

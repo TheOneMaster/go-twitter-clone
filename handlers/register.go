@@ -41,5 +41,7 @@ func RegisterRequest(w http.ResponseWriter, r *http.Request) {
 		ServeFragment(w, "registerForm.html", registerProps)
 		return
 	}
+
+	logIn(w, r, username)
 	redirect("/", w)
 }

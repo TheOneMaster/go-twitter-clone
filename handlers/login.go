@@ -23,6 +23,8 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 	validate := db.ValidateLogin(username, password)
 
 	if validate {
+		logIn(w, r, username)
+
 		redirect("/", w)
 		return
 	}

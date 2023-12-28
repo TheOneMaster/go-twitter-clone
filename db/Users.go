@@ -67,3 +67,21 @@ func CheckUserExists(username string) error {
 	}
 	return errors.New("User does not exist")
 }
+
+type FrontEndUserDetails struct {
+	Username    string
+	DisplayName string `db:"displayName"`
+	Photo       string
+}
+
+func GetUserDetails(username string) FrontEndUserDetails {
+	var userDetails FrontEndUserDetails
+
+	err := Connection.Get(&userDetails, "SELECT username, displayName, photo FROM Users WHERE username==?", username)
+	if err != nil {
+		slog.Error(err.Error())
+		return userDetails
+	}
+
+	return userDetails
+}
