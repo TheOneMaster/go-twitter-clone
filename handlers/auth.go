@@ -53,3 +53,15 @@ func isLoggedIn(r *http.Request) (string, bool) {
 
 	return username, loggedIn
 }
+
+func LogOut(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, sessionKey)
+	if err != nil {
+		return
+	}
+	session.Values[userKey] = ""
+	session.Options.MaxAge = -1
+	session.Save(r, w)
+
+	redirect("/", w)
+}

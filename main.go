@@ -32,6 +32,7 @@ func main() {
 	r.Get("/login", handlers.LoginPage)
 	r.Get("/register", handlers.RegisterPage)
 	r.Get("/humans.txt", handlers.HumansHandler)
+	r.Get("/logout", handlers.LogOut)
 
 	// POST Routes
 	r.Post("/login", handlers.LoginRequest)
