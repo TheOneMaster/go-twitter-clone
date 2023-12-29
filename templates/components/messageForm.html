@@ -1,0 +1,12 @@
+<div class="outline outline-blue-500 outline-1">
+    <form class="flex items-center" hx-post="/sendMessage" hx-target="#messageList" hx-swap="afterbegin">
+        <div class="flex rounded w-full items-center">
+            <textarea name="messageData" class="resize-none flex-1 p-4 break-all break-words"></textarea>
+            <!-- <div name="messageData" contenteditable class="flex-1 p-4 break-all text-white break-words" maxlength="30" /> -->
+
+        </div>
+        <div class="mx-3">
+            <button name="submit" type="submit" class="btn btn-blue">Submit</button>
+        </div>
+    </form>
+</div>

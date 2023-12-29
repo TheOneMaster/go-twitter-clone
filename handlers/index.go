@@ -10,7 +10,7 @@ import (
 )
 
 type IndexProps struct {
-	Messages []db.FrontEndMessage
+	Messages templates.MessageList
 	LoggedIn bool
 	User     db.FrontEndUserDetails
 }

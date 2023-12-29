@@ -27,13 +27,6 @@ func ValidateLogin(username string, password string) bool {
 	return err == nil
 }
 
-type User struct {
-	Username    string
-	DisplayName string
-	Password    string
-	Photo       string
-}
-
 func SaveUser(user User) error {
 	insertStatement, err := Connection.Prepare("INSERT INTO Users (username, displayName, photo, password) VALUES (?, ?, ?, ?)")
 	if err != nil {

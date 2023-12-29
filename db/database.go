@@ -3,21 +3,23 @@ package db
 import (
 	"log"
 
+	"github.com/TheOneMaster/go-twitter-clone/templates"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var Connection *sqlx.DB
 
-type FrontEndMessage struct {
+type frontendMessage struct {
 	Author string `db:"displayName"`
 	Data   string `db:"messageText"`
 	Time   string
+	Photo  string
 }
 
-func DBMessages() []FrontEndMessage {
-	var messages []FrontEndMessage
-	rows, err := Connection.Queryx("SELECT displayName, messageText, time FROM Messages, Users WHERE author==Users.id;")
+func DBMessages() templates.MessageList {
+	var messages templates.MessageList
+	rows, err := Connection.Queryx("SELECT displayName, messageText, time, photo FROM Messages, Users WHERE author==Users.id;")
 	if err != nil {
 		log.Printf("Error: %s\n", err)
 		return messages
@@ -25,12 +27,18 @@ func DBMessages() []FrontEndMessage {
 	defer rows.Close()
 
 	for rows.Next() {
-		var m FrontEndMessage
+		var m frontendMessage
 		err = rows.StructScan(&m)
 		if err != nil {
 			log.Printf("Error: %s\n", err)
 		}
-		messages = append(messages, m)
+		msg := templates.Message{
+			Author: m.Author,
+			Data:   m.Data,
+			Photo:  m.Photo,
+			Time:   m.Time,
+		}
+		messages = append(messages, msg)
 	}
 	return messages
 }

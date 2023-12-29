@@ -37,8 +37,8 @@
         {{template "messageList.html" .Messages}}
 
         {{if .LoggedIn}}
-        <div class="relative bottom-5 z-10 mt-auto pr-5 flex">
-            <textarea class="resize-none p-2 flex-1"></textarea>
+        <div class="mt-auto mx-5 mb-5">
+            {{template "messageForm.html"}}
         </div>
         {{end}}
     </div>

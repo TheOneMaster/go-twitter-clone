@@ -1,7 +1,15 @@
-<div class="bg-slate-700 rounded-sm px-5 py-3 flex flex-col">
-    <h3 class="font-bold text-white">{{.Author}}</h3>
-    <p class="text-white">{{.Data}}</p>
-    <div class="mt-auto pt-4">
-        <span class="text-slate-400 font-light">{{.Time}}</span>
+{{$userPhoto := "/static/profile.png"}}
+{{if .Photo}}
+{{$userPhoto = .Photo}}
+{{end}}
+
+<div class="bg-slate-700 rounded-sm px-4 py-3 flex">
+    <img src="{{$userPhoto}}" alt="profile-image" class="w-24 h-24 rounded-full border-4 border-slate-500 mr-4" />
+    <div>
+        <h3 class="font-bold text-white">{{.Author}}</h3>
+        <p class="text-white">{{.Data}}</p>
+        <div class="mt-auto pt-4">
+            <span class="text-slate-400 font-light">{{.Time}}</span>
+        </div>
     </div>
 </div>
