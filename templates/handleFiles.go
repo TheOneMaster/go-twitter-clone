@@ -53,5 +53,6 @@ func LoadFragment(file string) (*template.Template, error) {
 	templatePath := path.Join(wd, "./templates/components", file)
 
 	t, err = template.ParseFiles(templatePath)
+	loadComponents(t)
 	return t, err
 }
