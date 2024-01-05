@@ -33,10 +33,12 @@ func main() {
 	r.Get("/register", handlers.RegisterPage)
 	r.Get("/humans.txt", handlers.HumansHandler)
 	r.Get("/logout", handlers.LogOut)
+	r.Get("/message/*", handlers.SelectMessage)
 
 	// POST Routes
 	r.Post("/login", handlers.LoginRequest)
 	r.Post("/register", handlers.RegisterRequest)
+	r.Post("/sendMessage", handlers.MessageHandler)
 
 	fmt.Printf("Running on http://localhost:%d\n", portNumber)
 	http.ListenAndServe(fmt.Sprintf(":%d", portNumber), r)
