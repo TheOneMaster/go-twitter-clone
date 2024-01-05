@@ -22,21 +22,22 @@ func RegisterRequest(w http.ResponseWriter, r *http.Request) {
 	displayName := r.FormValue("displayName")
 	password := r.FormValue("password")
 
-	// TODO: Add password constraints
-	err := db.CheckUserExists(username)
-
-	if err == nil {
-		registerProps.Username = true
-		ServeFragment(w, "loginForm.html", registerProps)
-		return
-	}
-
 	user := db.User{
 		Username:    username,
 		DisplayName: displayName,
 		Password:    password,
 	}
-	if err = db.SaveUser(user); err != nil {
+
+	// TODO: Add password constraints
+	userExists := user.VerifyExists()
+
+	if userExists {
+		registerProps.Username = true
+		ServeFragment(w, "loginForm.html", registerProps)
+		return
+	}
+
+	if err := user.Save(); err != nil {
 		registerProps.ServerError = true
 		ServeFragment(w, "registerForm.html", registerProps)
 		return

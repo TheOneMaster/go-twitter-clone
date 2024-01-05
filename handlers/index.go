@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/TheOneMaster/go-twitter-clone/db"
@@ -12,31 +11,30 @@ import (
 type IndexProps struct {
 	Messages templates.MessageList
 	LoggedIn bool
-	User     db.FrontEndUserDetails
+	User     templates.User
 }
 
 func IndexPage(w http.ResponseWriter, r *http.Request) {
-	// fmt.Printf("Logged in %t\n", logIn)
-	var userDetails db.FrontEndUserDetails
-	username, loggedIn := isLoggedIn(r)
-
-	if loggedIn {
-		userDetails = db.GetUserDetails(username)
-		log.Printf("User: %s\n", userDetails.Username)
-	}
-
 	t, err := templates.LoadFiles("base.html", "index.html")
 	if err != nil {
-		fmt.Println(err)
+		slog.Error(err.Error())
 		PageNotFound(w)
 	}
 
-	messages := db.DBMessages()
+	var userDetails templates.User
+	user, loggedIn := isLoggedIn(r)
+	if loggedIn {
+		userDetails = templates.User{
+			Username:    user.Username,
+			DisplayName: user.DisplayName,
+			Photo:       user.ProfilePhoto.String,
+		}
+	}
 
-	fmt.Printf("Number of messages: %d\n", len(messages))
+	databaseMessages := db.GetMessageList(user)
 
 	pageProps := IndexProps{
-		Messages: messages,
+		Messages: databaseMessages,
 		LoggedIn: loggedIn,
 		User:     userDetails,
 	}

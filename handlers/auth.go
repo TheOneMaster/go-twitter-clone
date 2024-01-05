@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/TheOneMaster/go-twitter-clone/db"
 	"github.com/TheOneMaster/go-twitter-clone/env"
 	"github.com/gorilla/sessions"
 )
@@ -41,17 +42,21 @@ func logIn(w http.ResponseWriter, r *http.Request, username string) {
 	session.Save(r, w)
 }
 
-func isLoggedIn(r *http.Request) (string, bool) {
+func isLoggedIn(r *http.Request) (*db.User, bool) {
+	user := &db.User{}
 	loggedIn := r.Context().Value(authContextKey).(bool)
 
 	if !loggedIn {
-		return "", loggedIn
+		return user, loggedIn
 	}
 
 	session, _ := store.Get(r, sessionKey)
 	username, _ := session.Values[userKey].(string)
 
-	return username, loggedIn
+	user.Username = username
+	user.GetDetails()
+
+	return user, loggedIn
 }
 
 func LogOut(w http.ResponseWriter, r *http.Request) {

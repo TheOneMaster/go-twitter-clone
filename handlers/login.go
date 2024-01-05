@@ -20,8 +20,12 @@ func LoginRequest(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	validate := db.ValidateLogin(username, password)
+	user := db.User{
+		Username: username,
+		Password: password,
+	}
 
+	validate := user.ValidateLogin()
 	if validate {
 		logIn(w, r, username)
 

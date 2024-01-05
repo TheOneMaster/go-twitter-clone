@@ -37,7 +37,10 @@ func ServeFragment(w http.ResponseWriter, fragment string, data any) {
 	if err != nil {
 		ServerError(w)
 	}
-	t.Execute(w, data)
+	err = t.Execute(w, data)
+	if err != nil {
+		ServerError(w)
+	}
 }
 
 func redirect(path string, w http.ResponseWriter) {
