@@ -16,5 +16,6 @@
 
 @font-face {
     font-family: "CothamSans";
-    src: url("CothamSans.otf")
+    src: url("CothamSans.otf");
+    font-display: swap;
 }

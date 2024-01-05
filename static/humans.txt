@@ -5,7 +5,7 @@ Location: Tilburg, Netherlands
 
 
 /* SITE */
-Last updated: 2023/12/25
+Last updated: 2024-01-05
 Standards: HTML5, CSS3, ES6
 Components: HTMX
 Software: Go
