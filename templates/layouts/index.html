@@ -32,9 +32,20 @@
     </div>
 
     <div class="flex flex-1 flex-col">
-        <h2 class="text-white text-xl font-header py-5 pl-4">Messages</h2>
+        <div class="flex flex-row">
+            <h2 class="text-white text-xl font-header py-5 pl-4">Messages</h2>
+            <img id="message-loading" class="htmx-indicator" src="/static/three-dots.svg" alt="loading-indicator" />
+        </div>
 
-        {{template "messageList.html" .Messages}}
+        <div class="px-4">
+            <div class="grid grid-cols-2 gap-x-4">
+                <div id="messageList">
+                    {{template "messageList.html" .Messages}}
+                </div>
+                <div id="replyList">Testing</div>
+            </div>
+        </div>
+
 
         {{if .LoggedIn}}
         <div class="mt-auto mx-5 mb-5">
