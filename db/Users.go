@@ -1,21 +1,59 @@
 package db
 
 import (
-	"errors"
+	"database/sql"
 	"log/slog"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func ValidateLogin(username string, password string) bool {
+type User struct {
+	Id           int
+	Username     string
+	DisplayName  string         `db:"displayName"`
+	ProfilePhoto sql.NullString `db:"profilePhoto"`
+	BannerPhoto  string         `db:"bannerPhoto"`
+	CreationTime string         `db:"creationTime"`
+	Password     string
+}
+
+func (user *User) VerifyExists() bool {
+	var count int
+	err := Connection.Get(&count, "SELECT 1 FROM Users WHERE username==?", user.Username)
+
+	if err != nil || count == 0 {
+		return false
+	}
+
+	return true
+}
+
+func (user *User) Save() error {
+	hashed_password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = Connection.Exec("INSERT INTO Users(username, displayName, password) VALUES (?, ?, ?)",
+		user.Username, user.DisplayName, string(hashed_password))
+
+	if err != nil {
+		slog.Error(err.Error(), "user", user)
+	}
+
+	slog.Info("Inserted user", "user", user)
+	return err
+}
+
+func (user *User) ValidateLogin() bool {
 	temp_store := struct {
 		Count    int
 		Password string
 	}{}
 
-	err := Connection.Get(&temp_store, "SELECT count(*) as count, password FROM Users WHERE username==?", username, password)
+	err := Connection.Get(&temp_store, "SELECT count(*) as count, password FROM Users WHERE username==?", user.Username)
 	if err != nil {
-		slog.Error("Database call error")
+		slog.Error(err.Error(), "user", user)
 		return false
 	}
 
@@ -23,58 +61,29 @@ func ValidateLogin(username string, password string) bool {
 		return false
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(temp_store.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(temp_store.Password), []byte(user.Password))
 	return err == nil
 }
 
-func SaveUser(user User) error {
-	insertStatement, err := Connection.Prepare("INSERT INTO Users (username, displayName, photo, password) VALUES (?, ?, ?, ?)")
+func (user *User) GetDetails() error {
+	err := Connection.Get(user, "SELECT username, id, displayName, profilePhoto, creationTime FROM Users WHERE username==?", user.Username)
 	if err != nil {
-		return err
+		slog.Error(err.Error(), "user", user)
 	}
-
-	hashed_password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	_, err = insertStatement.Exec(user.Username, user.DisplayName, user.Photo, string(hashed_password))
-	slog.Info("Insert user: ", user.Username)
-
 	return err
 }
 
-/*
-Return an error if the user does not exist and nil if the user exists
-*/
-func CheckUserExists(username string) error {
-	var count int
-
-	err := Connection.Get(&count, "SELECT count(*) FROM Users WHERE username==?", username)
+func (user *User) GetFullDetails() error {
+	err := Connection.Get(user, "SELECT * FROM Users WHERE username==?", user.Username)
 	if err != nil {
-		return err
+		slog.Error(err.Error(), "user", user)
 	}
-
-	if count > 0 {
-		return nil
-	}
-	return errors.New("User does not exist")
+	return err
 }
 
-type FrontEndUserDetails struct {
-	Username    string
-	DisplayName string `db:"displayName"`
-	Photo       string
-}
-
-func GetUserDetails(username string) FrontEndUserDetails {
-	var userDetails FrontEndUserDetails
-
-	err := Connection.Get(&userDetails, "SELECT username, displayName, photo FROM Users WHERE username==?", username)
-	if err != nil {
-		slog.Error(err.Error())
-		return userDetails
-	}
-
-	return userDetails
+func (user *User) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Int("id", user.Id),
+		slog.String("username", user.Username),
+	)
 }
