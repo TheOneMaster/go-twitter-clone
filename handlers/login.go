@@ -4,18 +4,15 @@ import (
 	"net/http"
 
 	"github.com/TheOneMaster/go-twitter-clone/db"
+	"github.com/TheOneMaster/go-twitter-clone/templates"
 )
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
 	ServeStaticPage("login.html", w)
 }
 
-type loginFormProps struct {
-	Incorrect bool
-}
-
 func LoginRequest(w http.ResponseWriter, r *http.Request) {
-	loginProps := loginFormProps{}
+	loginProps := templates.LoginFormProps{}
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")

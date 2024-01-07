@@ -8,12 +8,6 @@ import (
 	"github.com/TheOneMaster/go-twitter-clone/templates"
 )
 
-type IndexProps struct {
-	Messages templates.MessageList
-	LoggedIn bool
-	User     templates.User
-}
-
 func IndexPage(w http.ResponseWriter, r *http.Request) {
 	t, err := templates.LoadFiles("base.html", "index.html")
 	if err != nil {
@@ -33,7 +27,7 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 
 	databaseMessages := db.GetMessageList(user)
 
-	pageProps := IndexProps{
+	pageProps := templates.IndexProps{
 		Messages: databaseMessages,
 		LoggedIn: loggedIn,
 		User:     userDetails,

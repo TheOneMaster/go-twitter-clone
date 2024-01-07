@@ -1,5 +1,6 @@
 package templates
 
+// Components
 type Message struct {
 	ID     int
 	Author string
@@ -27,4 +28,15 @@ type Profile struct {
 	ProfileImage string
 
 	Messages MessageList
+}
+
+type LoginFormProps struct {
+	Incorrect bool
+}
+
+// Page Props
+type IndexProps struct {
+	Messages MessageList
+	LoggedIn bool
+	User     User
 }
