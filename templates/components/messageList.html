@@ -1,5 +1,9 @@
 <div class="flex flex-col gap-y-4 overflow-y-scroll"
-    hx-target="this" hx-swap="outerHTML" hx-trigger="reload-messages from:body" hx-indicator="message-loading">
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-trigger="reload-messages from:body"
+    hx-indicator="#message-loading">
+
     {{if not .}}
         <div>No messages</div>
     {{else}}
@@ -7,4 +11,5 @@
             {{template "message.html" .}}
         {{end}}
     {{end}}
+
 </div>

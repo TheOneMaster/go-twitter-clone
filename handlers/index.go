@@ -15,7 +15,7 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 		PageNotFound(w)
 	}
 
-	var userDetails templates.User
+	userDetails := templates.User{}
 	user, loggedIn := isLoggedIn(r)
 	if loggedIn {
 		userDetails = templates.User{

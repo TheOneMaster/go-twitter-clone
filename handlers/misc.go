@@ -20,6 +20,11 @@ func ServerError(w http.ResponseWriter) {
 	w.Write([]byte("server error"))
 }
 
+func NotAuthorizedError(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusForbidden)
+	w.Write([]byte("Not authorized to perform this action"))
+}
+
 func ServeStaticPage(pageFile string, w http.ResponseWriter) {
 	t, err := templates.LoadFiles("base.html", pageFile)
 	if err != nil {

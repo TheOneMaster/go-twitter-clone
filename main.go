@@ -27,18 +27,22 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
-	// GET Routes
+	// Static Routes
 	r.Get("/", handlers.IndexPage)
 	r.Get("/login", handlers.LoginPage)
 	r.Get("/register", handlers.RegisterPage)
 	r.Get("/humans.txt", handlers.HumansHandler)
 	r.Get("/logout", handlers.LogOut)
-	r.Get("/message/*", handlers.SelectMessage)
 
-	// POST Routes
 	r.Post("/login", handlers.LoginRequest)
 	r.Post("/register", handlers.RegisterRequest)
 	r.Post("/sendMessage", handlers.MessageHandler)
+
+	// Dynamic routes
+	r.Get("/message/*", handlers.GetMessage)
+	r.Get("/replies/*", handlers.ReplyHandler)
+
+	r.Post("/like/*", handlers.LikeMessage)
 
 	fmt.Printf("Running on http://localhost:%d\n", portNumber)
 	http.ListenAndServe(fmt.Sprintf(":%d", portNumber), r)
