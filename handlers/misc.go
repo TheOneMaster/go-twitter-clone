@@ -51,3 +51,7 @@ func ServeFragment(w http.ResponseWriter, fragment string, data any) {
 func redirect(path string, w http.ResponseWriter) {
 	w.Header().Set("HX-Redirect", path)
 }
+
+func triggerEvent(eventName string, w http.ResponseWriter) {
+	w.Header().Add("HX-Trigger", eventName)
+}

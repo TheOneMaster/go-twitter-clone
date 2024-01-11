@@ -55,21 +55,16 @@ func LikeMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	liked, err := db.ToggleLikeMessage(&msg, user)
+	_, err = db.ToggleLikeMessage(&msg, user)
 
 	if err != nil {
 		ServerError(w)
 		return
 	}
 
-	likeButtonProps := make(map[string]any)
-	likeButtonProps["ID"] = msgID
-	likeButtonProps["Liked"] = liked
+	reload_msgID := fmt.Sprintf("reload-message-%d", msgID)
+	triggerEvent(reload_msgID, w)
 
-	reload_string := fmt.Sprintf("reload-message-%d", msgID)
-	w.Header().Add("HX-Trigger", reload_string)
-
-	ServeFragment(w, "likeButton.html", likeButtonProps)
 }
 
 func GetMessage(w http.ResponseWriter, r *http.Request) {

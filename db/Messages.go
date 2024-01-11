@@ -58,24 +58,24 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 		Id           int
 		ParentID     sql.NullInt32
 		MessageText  string
-		Author       string
+		Author       int
+		DisplayName  string
 		ProfilePhoto sql.NullString
 		PostTime     time.Time
 		Liked        int
 		Level        int
 	}{}
 	query := `
-	WITH RECURSIVE test(id, parentid, messagetext, author, profilephoto, posttime, level) AS (
-		SELECT m.id, parentid, messagetext, username, profilephoto, posttime, 0
-		  FROM Messages m, Users u
-		  WHERE m.id = ? AND m.author = u.id
+	WITH RECURSIVE reply(id, parentid, messagetext, author, posttime, level) AS (
+		SELECT m.id, parentid, messagetext, author, posttime, 0
+		  FROM Messages m
+		  WHERE m.id = ?
 
 		  UNION ALL
 
-		  SELECT m.id, m.parentid, m.messagetext, t.author, t.profilephoto, m.posttime, t.level+1
+		  SELECT m.id, m.parentid, m.messagetext, m.author, m.posttime, r.level+1
 		  FROM Messages m
-		  JOIN test t ON t.id = m.parentid
-		  ORDER  BY posttime DESC
+		  JOIN reply r ON r.id = m.parentid
 		  LIMIT 20
 	)
 	`
@@ -83,28 +83,34 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 	userExists := user.VerifyExists()
 
 	if !userExists {
-		query += "SELECT * FROM test;"
+		query += `
+		SELECT r.*, u.displayname, u.profilephoto
+		FROM reply r, Users u
+		WHERE r.author = u.id;
+		`
 		err = Connection.Select(&dbMessages, query, msg.Id)
 	} else {
 		query += `
-		SELECT *, EXISTS(
+		SELECT r.*, displayName as displayname, profilephoto as profilephoto, EXISTS(
 			SELECT 1
 			FROM Likes l
-			WHERE l.messageID = t.id AND l.personID = ?
+			WHERE l.messageID = r.id AND l.personID = ?
 		) AS liked
-		FROM test t;`
+		FROM reply r, Users u
+		WHERE r.author = u.id;
+		`
 		err = Connection.Select(&dbMessages, query, msg.Id, user.Id)
 	}
 
 	if err != nil {
-		slog.Error(err.Error(), "list", msgList)
+		slog.Error(err.Error())
 		return msgList
 	}
 
 	for _, msg := range dbMessages {
 		tempMessage := templates.Message{
 			ID:       msg.Id,
-			Author:   msg.Author,
+			Author:   msg.DisplayName,
 			Data:     msg.MessageText,
 			Time:     msg.PostTime.Format(time.DateTime),
 			Photo:    msg.ProfilePhoto.String,

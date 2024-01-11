@@ -37,12 +37,12 @@
             <img id="message-loading" class="htmx-indicator" src="/static/three-dots.svg" alt="loading-indicator" />
         </div>
 
-        <div class="px-4">
-            <div class="grid grid-cols-2 gap-x-4">
+        <div class="px-4 flex-1 flex">
+            <div class="grid grid-cols-2 gap-x-4 flex-1">
                 <div id="messageList">
                     {{template "messageList.html" .Messages}}
                 </div>
-                <div id="replyList">Testing</div>
+                <div id="replyList" class=""></div>
             </div>
         </div>
 
