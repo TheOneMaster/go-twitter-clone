@@ -110,7 +110,6 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 			Photo:    msg.ProfilePhoto.String,
 			Selected: false,
 			Liked:    msg.Liked == 1,
-			Reply:    true,
 		}
 
 		msgList = append(msgList, tempMessage)
@@ -180,7 +179,6 @@ func GetMessageList(user *User) templates.MessageList {
 			Time:   msg.PostTime.Format(time.DateTime),
 			Photo:  msg.ProfilePhoto.String,
 			Liked:  msg.Liked == 1,
-			Reply:  false,
 		}
 		messages = append(messages, temp_message)
 	}
@@ -224,7 +222,6 @@ func GetMessage(msgID int, user User) templates.Message {
 		Time:   dbMsg.PostTime.Format(time.DateTime),
 		Photo:  dbMsg.ProfilePhoto.String,
 		Liked:  dbMsg.Liked == 1,
-		Reply:  false,
 	}
 
 	return templateMsg
