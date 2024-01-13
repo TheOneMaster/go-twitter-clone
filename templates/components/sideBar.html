@@ -1,0 +1,22 @@
+<div class="h-screen flex flex-col border-r border-green-500 border-solid overflow-hidden">
+    <!-- User Details -->
+    <div class="flex flex-row border-b border-white/50">
+        <img class="profile-photo h-20 w-20" src={{.ProfilePhoto}} alt="profilePhoto" />
+        <div class="pl-3 pr-5">
+            <h2 class="text-white">{{.DisplayName}}</h2>
+            <h2 class="text-white/80">@{{.Username}}</h2>
+        </div>
+    </div>
+
+    <!-- Nav Elements -->
+    <nav class="flex flex-1 flex-col">
+        <a href="/">Home</a>
+        <a href="/profile/me">Profile</a>
+        <!-- <a href="/settings">Settings</a> -->
+    </nav>
+
+    <!-- Bottom Section -->
+    <div>
+
+    </div>
+</div>

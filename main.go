@@ -22,6 +22,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(handlers.ValidateSession)
+	r.Use(middleware.Compress(5))
 	// r.Use(handlers.Validate)
 
 	fs := http.FileServer(http.Dir("static"))
@@ -41,6 +42,7 @@ func main() {
 	// Dynamic routes
 	r.Get("/message/*", handlers.GetMessage)
 	r.Get("/replies/*", handlers.ReplyHandler)
+	r.Get("/profile/*", handlers.ProfileHandler)
 
 	r.Post("/like/*", handlers.LikeMessage)
 

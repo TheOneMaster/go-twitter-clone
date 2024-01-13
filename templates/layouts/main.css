@@ -19,3 +19,15 @@
     src: url("CothamSans.otf");
     font-display: swap;
 }
+
+h1 {
+    @apply font-bold
+}
+
+.profile-photo {
+    @apply rounded-full border-4 border-zinc-600
+}
+
+nav a {
+    @apply text-white p-5 bg-white/5 hover:scale-105 hover:bg-white/20
+}

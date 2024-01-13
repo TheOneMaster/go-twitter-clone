@@ -12,7 +12,7 @@
                         {{if .User.Photo}}
                         {{$userPhoto = .User.Photo}}
                         {{end}}
-                        <img src="{{ $userPhoto }}" alt="profile-image" class="w-32 h-32 rounded-full border-4 border-zinc-600" />
+                        <img src="{{ $userPhoto }}" alt="profile-image" class="w-32 h-32 profile-photo" />
                     </div>
                     <div class="flex flex-col">
                         <h2 class="text-white font-bold text-lg">{{ .User.DisplayName }}</h2>

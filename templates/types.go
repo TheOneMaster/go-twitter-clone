@@ -40,3 +40,19 @@ type IndexProps struct {
 	LoggedIn bool
 	User     User
 }
+
+type ProfileProps struct {
+	User     ProfileUser
+	Messages MessageList
+
+	Editable bool
+}
+
+type ProfileUser struct {
+	Id           int
+	Username     string
+	DisplayName  string
+	ProfilePhoto string
+	BannerPhoto  string
+	CreationTime string
+}

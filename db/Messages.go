@@ -232,3 +232,61 @@ func GetMessage(msgID int, user User) templates.Message {
 
 	return templateMsg
 }
+
+func GetUserMessages(username string) templates.MessageList {
+	messageList := templates.MessageList{}
+	dbMsgList := []messageTemplate{}
+
+	query := `
+	SELECT m.id, m.author, u.displayname, m.messagetext, m.posttime, u.profilephoto, EXISTS (
+		SELECT 1
+		FROM Likes l
+		WHERE l.messageid = m.id AND l.personid = u.id
+	) as liked
+	FROM Messages m
+	RIGHT JOIN Users u ON u.id = m.author
+	WHERE u.username = ?;
+	`
+
+	err := Connection.Select(&dbMsgList, query, username)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	for _, msg := range dbMsgList {
+		messageList = append(messageList, msg.convertToTemplateProps())
+	}
+
+	return messageList
+}
+
+type messageTemplate struct {
+	Id           int
+	Author       int
+	ParentID     sql.NullInt32  `db:"parentID"`
+	MessageText  string         `db:"messageText"`
+	PostTime     time.Time      `db:"postTime"`
+	DisplayName  string         `db:"displayName"`
+	ProfilePhoto sql.NullString `db:"profilePhoto"`
+	Liked        int
+}
+
+func (msg messageTemplate) convertToTemplateProps() templates.Message {
+
+	profilePhoto := msg.ProfilePhoto.String
+	if profilePhoto == "" {
+		profilePhoto = defaultProfilePhoto
+	}
+
+	liked := msg.Liked == 1
+
+	return templates.Message{
+		ID:       msg.Id,
+		Author:   msg.DisplayName,
+		Data:     msg.MessageText,
+		Time:     msg.PostTime.Format(time.DateTime),
+		Photo:    profilePhoto,
+		Liked:    liked,
+		Selected: false,
+	}
+}

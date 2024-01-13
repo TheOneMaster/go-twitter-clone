@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"log/slog"
+	"time"
 
+	"github.com/TheOneMaster/go-twitter-clone/templates"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,10 +14,13 @@ type User struct {
 	Username     string
 	DisplayName  string         `db:"displayName"`
 	ProfilePhoto sql.NullString `db:"profilePhoto"`
-	BannerPhoto  string         `db:"bannerPhoto"`
-	CreationTime string         `db:"creationTime"`
+	BannerPhoto  sql.NullString `db:"bannerPhoto"`
+	CreationTime time.Time      `db:"creationTime"`
 	Password     string
 }
+
+const defaultProfilePhoto = "/static/profile.png"
+const defaultBannerPhoto = "/static/banner.avif"
 
 func (user *User) VerifyExists() bool {
 	var count int
@@ -81,9 +86,45 @@ func (user *User) GetFullDetails() error {
 	return err
 }
 
+func (user *User) GetImages() {
+	profilePhoto := user.ProfilePhoto.String
+	bannerPhoto := user.BannerPhoto.String
+
+	if profilePhoto == "" {
+		profilePhoto = defaultProfilePhoto
+	}
+	if bannerPhoto == "" {
+		bannerPhoto = defaultBannerPhoto
+	}
+
+	user.ProfilePhoto.String = profilePhoto
+	user.BannerPhoto.String = bannerPhoto
+}
+
 func (user *User) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.Int("id", user.Id),
 		slog.String("username", user.Username),
 	)
+}
+
+func GetUserDetails(username string) (templates.ProfileUser, error) {
+	user := User{}
+	var profileDetails templates.ProfileUser
+	err := Connection.Get(&user, "SELECT * FROM Users WHERE username=?", username)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+	user.GetImages()
+
+	profileDetails = templates.ProfileUser{
+		Id:           user.Id,
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfilePhoto: user.ProfilePhoto.String,
+		BannerPhoto:  user.BannerPhoto.String,
+		CreationTime: user.CreationTime.Format(time.DateOnly),
+	}
+
+	return profileDetails, err
 }
