@@ -7,45 +7,33 @@ type Message struct {
 	Data   string
 	Time   string
 	Photo  string
+	User   MessageUser
 
 	// Metadata properties
 	Liked    bool
 	Selected bool
 }
 
-type MessageList []Message
-
-type User struct {
-	Username    string
-	DisplayName string
-	Photo       string
-}
-
-type Profile struct {
+type MessageUser struct {
 	Username     string
 	DisplayName  string
-	DateCreated  string
-	ProfileImage string
-
-	Messages MessageList
+	ProfilePhoto string
 }
+
+type MessageList []Message
 
 type LoginFormProps struct {
 	Incorrect bool
 }
 
-// Page Props
-type IndexProps struct {
-	Messages MessageList
-	LoggedIn bool
-	User     User
+type SideBarUser struct {
+	Username     string
+	DisplayName  string
+	ProfilePhoto string
 }
-
-type ProfileProps struct {
-	User     ProfileUser
-	Messages MessageList
-
-	Editable bool
+type SideBarProps struct {
+	LoggedIn bool
+	User     SideBarUser
 }
 
 type ProfileUser struct {
@@ -55,4 +43,17 @@ type ProfileUser struct {
 	ProfilePhoto string
 	BannerPhoto  string
 	CreationTime string
+}
+
+// Page Props
+type IndexProps struct {
+	Sidebar  SideBarProps
+	Messages MessageList
+}
+
+type ProfileProps struct {
+	Sidebar  SideBarProps
+	User     ProfileUser
+	Messages MessageList
+	Editable bool
 }

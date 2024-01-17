@@ -20,10 +20,10 @@ func main() {
 	portNumber := env.Environment.PortNumber
 
 	r := chi.NewRouter()
+
 	r.Use(middleware.Logger)
-	r.Use(handlers.ValidateSession)
 	r.Use(middleware.Compress(5))
-	// r.Use(handlers.Validate)
+	r.Use(handlers.ValidateSession)
 
 	fs := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))

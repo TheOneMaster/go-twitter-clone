@@ -12,11 +12,11 @@ import (
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimPrefix(r.URL.Path, "/profile/")
-	userDetails, logged_in := isLoggedIn(r)
+	currentUser, logged_in := isLoggedIn(r)
 
 	if username == "me" {
 		if logged_in {
-			redirectURL := fmt.Sprintf("/profile/%s", userDetails.Username)
+			redirectURL := fmt.Sprintf("/profile/%s", currentUser.Username)
 			http.Redirect(w, r, redirectURL, http.StatusFound)
 		} else {
 			http.Redirect(w, r, "/login", http.StatusFound)
@@ -25,20 +25,23 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	editable := false
-	if logged_in && username == userDetails.Username {
+	if logged_in && username == currentUser.Username {
 		editable = true
 	}
 
-	user, err := db.GetUserDetails(username)
+	user, err := db.GetUserFromUsername(username)
 	if err != nil {
 		PageNotFound(w)
 		return
 	}
 
-	messages := db.GetUserMessages(username)
+	userTemplate := user.GetTemplateDetails()
+	messages := db.GetMessagesFromUser(user)
+	sidebarProps := GetSidebarProps(r)
 
 	profilePageProps := templates.ProfileProps{
-		User:     user,
+		Sidebar:  sidebarProps,
+		User:     userTemplate,
 		Messages: messages,
 		Editable: editable,
 	}

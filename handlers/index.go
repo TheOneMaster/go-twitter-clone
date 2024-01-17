@@ -15,22 +15,14 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 		PageNotFound(w)
 	}
 
-	userDetails := templates.User{}
-	user, loggedIn := isLoggedIn(r)
-	if loggedIn {
-		userDetails = templates.User{
-			Username:    user.Username,
-			DisplayName: user.DisplayName,
-			Photo:       user.ProfilePhoto.String,
-		}
-	}
+	user, _ := isLoggedIn(r)
+	sidebarProps := GetSidebarProps(r)
 
 	databaseMessages := db.GetMessageList(user)
 
 	pageProps := templates.IndexProps{
+		Sidebar:  sidebarProps,
 		Messages: databaseMessages,
-		LoggedIn: loggedIn,
-		User:     userDetails,
 	}
 
 	err = t.Execute(w, pageProps)

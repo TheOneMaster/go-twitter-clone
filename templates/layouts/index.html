@@ -4,32 +4,7 @@
 <div class="h-screen flex flex-row">
     <!-- <p class="text-white">Testing</p> -->
 
-    <div>
-        <div class="p-4 min-w-80">
-            {{if .LoggedIn}}
-                    <div>
-                        {{$userPhoto := "/static/profile.png"}}
-                        {{if .User.Photo}}
-                        {{$userPhoto = .User.Photo}}
-                        {{end}}
-                        <img src="{{ $userPhoto }}" alt="profile-image" class="w-32 h-32 profile-photo" />
-                    </div>
-                    <div class="flex flex-col">
-                        <h2 class="text-white font-bold text-lg">{{ .User.DisplayName }}</h2>
-                        <span class="text-slate-400 font-light text-sm">{{ .User.Username }}</span>
-                    </div>
-
-                    <button hx-get="/logout" class="btn btn-blue">Logout</button>
-            {{else}}
-                    <a href="/login">
-                        <button class="btn btn-blue">Log In</button>
-                    </a>
-                    <a href="/register">
-                        <button class="btn btn-blue">Register</button>
-                    </a>
-            {{end}}
-        </div>
-    </div>
+    {{template "sideBar.html" .Sidebar}}
 
     <div class="flex flex-1 flex-col">
         <div class="flex flex-row">

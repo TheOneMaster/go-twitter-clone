@@ -6,6 +6,7 @@ import (
 
 	"github.com/TheOneMaster/go-twitter-clone/db"
 	"github.com/TheOneMaster/go-twitter-clone/env"
+	"github.com/TheOneMaster/go-twitter-clone/templates"
 	"github.com/gorilla/sessions"
 )
 
@@ -69,4 +70,14 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 
 	redirect("/", w)
+}
+
+func GetSidebarProps(r *http.Request) templates.SideBarProps {
+	current_user, logged_in := isLoggedIn(r)
+	sidebar_details := templates.SideBarProps{LoggedIn: logged_in}
+
+	if logged_in {
+		sidebar_details.User = current_user.GetSidebarDetails()
+	}
+	return sidebar_details
 }

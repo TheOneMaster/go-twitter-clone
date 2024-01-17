@@ -86,21 +86,6 @@ func (user *User) GetFullDetails() error {
 	return err
 }
 
-func (user *User) GetImages() {
-	profilePhoto := user.ProfilePhoto.String
-	bannerPhoto := user.BannerPhoto.String
-
-	if profilePhoto == "" {
-		profilePhoto = defaultProfilePhoto
-	}
-	if bannerPhoto == "" {
-		bannerPhoto = defaultBannerPhoto
-	}
-
-	user.ProfilePhoto.String = profilePhoto
-	user.BannerPhoto.String = bannerPhoto
-}
-
 func (user *User) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.Int("id", user.Id),
@@ -108,23 +93,53 @@ func (user *User) LogValue() slog.Value {
 	)
 }
 
-func GetUserDetails(username string) (templates.ProfileUser, error) {
+func (user *User) GetTemplateDetails() templates.ProfileUser {
+
+	profilePhoto, bannerPhoto := defaultProfilePhoto, defaultBannerPhoto
+	if user.ProfilePhoto.Valid && user.ProfilePhoto.String != "" {
+		profilePhoto = user.ProfilePhoto.String
+	}
+	if user.BannerPhoto.Valid && user.BannerPhoto.String != "" {
+		bannerPhoto = user.BannerPhoto.String
+	}
+
+	return templates.ProfileUser{
+		Id:           user.Id,
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfilePhoto: profilePhoto,
+		BannerPhoto:  bannerPhoto,
+		CreationTime: user.CreationTime.Format(time.DateOnly),
+	}
+}
+
+func (user *User) GetSidebarDetails() templates.SideBarUser {
+	profilePhoto := defaultProfilePhoto
+	if user.ProfilePhoto.Valid && user.ProfilePhoto.String != "" {
+		profilePhoto = user.ProfilePhoto.String
+	}
+
+	return templates.SideBarUser{
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfilePhoto: profilePhoto,
+	}
+}
+
+func GetUserFromUsername(username string) (*User, error) {
 	user := User{}
-	var profileDetails templates.ProfileUser
 	err := Connection.Get(&user, "SELECT * FROM Users WHERE username=?", username)
 	if err != nil {
 		slog.Error(err.Error())
 	}
-	user.GetImages()
+	return &user, err
+}
 
-	profileDetails = templates.ProfileUser{
-		Id:           user.Id,
-		Username:     user.Username,
-		DisplayName:  user.DisplayName,
-		ProfilePhoto: user.ProfilePhoto.String,
-		BannerPhoto:  user.BannerPhoto.String,
-		CreationTime: user.CreationTime.Format(time.DateOnly),
+func GetUserFromId(id int) (User, error) {
+	user := User{}
+	err := Connection.Get(&user, "SELECT * FROM Users WHERE id=?", id)
+	if err != nil {
+		slog.Error(err.Error())
 	}
-
-	return profileDetails, err
+	return user, err
 }
