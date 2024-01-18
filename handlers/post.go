@@ -8,7 +8,7 @@ import (
 )
 
 func MessageHandler(w http.ResponseWriter, r *http.Request) {
-	user, loggedIn := isLoggedIn(r)
+	_, loggedIn := isLoggedIn(r)
 
 	if !loggedIn {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -19,7 +19,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	message := db.Message{
 		MessageText: messageText,
-		Author:      user.Id,
+		// Author:      user.Id,
 	}
 
 	slog.Info("new message", "message", message)
