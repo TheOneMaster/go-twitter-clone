@@ -30,15 +30,11 @@ type Reply struct {
 	Level int
 }
 
-func (msg *Message) VerifyExists() bool {
-	var count int
-	err := Connection.Get(&count, "SELECT 1 FROM Messages WHERE id=?", msg.Id)
-
-	if err != nil || count == 0 {
-		return false
-	}
-
-	return true
+func (msg *Message) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Int("id", msg.Id),
+		slog.Int("author", msg.MessageUser.Id),
+	)
 }
 
 func (msg *Message) Save() error {
@@ -52,17 +48,6 @@ func (msg *Message) Save() error {
 
 func (msg *Message) Edit(newMessage string) error {
 	_, err := Connection.Exec("UPDATE Messages SET messageText=? WHERE id==?", newMessage, msg.Id)
-	return err
-}
-
-func (msg *Message) GetDetails() error {
-	query := `
-	SELECT *
-	FROM Messages
-	WHERE id = ?
-	;`
-
-	err := Connection.Get(msg, query, msg.Id)
 	return err
 }
 
@@ -118,13 +103,6 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 	}
 
 	return msgList
-}
-
-func (msg *Message) LogValue() slog.Value {
-	return slog.GroupValue(
-		slog.Int("id", msg.Id),
-		slog.Int("author", msg.MessageUser.Id),
-	)
 }
 
 func (msg *Message) ConvertToTemplate() templates.Message {
@@ -207,8 +185,6 @@ func GetMessageById(msgID int, user User) (Message, error) {
 	`
 
 	err := Connection.Get(&dbMsg, query, user.Id, msgID)
-
-	slog.Info("t", "message", dbMsg)
 
 	if err != nil {
 		slog.Error(err.Error())

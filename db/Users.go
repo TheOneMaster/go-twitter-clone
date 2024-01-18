@@ -46,7 +46,6 @@ func (user *User) Save() error {
 		slog.Error(err.Error(), "user", user)
 	}
 
-	slog.Info("Inserted user", "user", user)
 	return err
 }
 
