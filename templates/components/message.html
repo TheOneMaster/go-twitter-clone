@@ -6,7 +6,7 @@
 <div hx-get="/message/{{.ID}}" hx-trigger="reload-message-{{.ID}} from:body" hx-target="this" hx-swap="outerHTML" hx-indicator="this"
     class="relative">
     <div id="/message/{{.ID}}"
-        class="bg-slate-700 rounded-sm px-4 py-3 flex {{if .Selected}}border border-cyan-400 border-dashed{{end}}"
+        class="bg-white/10 rounded-sm px-4 py-3 flex {{if .Selected}}border border-cyan-400 border-dashed{{end}}"
         hx-get="/replies/{{.ID}}"
         hx-swap="innerHTML"
         hx-target="#replyList"
@@ -19,7 +19,7 @@
 
             <p class="text-white">{{.Data}}</p>
 
-            <div class="mt-auto pt-4 flex flex-row">
+            <div class="mt-auto pt-4 flex flex-row items-end">
                 <span class="text-slate-400 font-light">{{.Time}}</span>
 
                 <div class="ml-auto self-end">
