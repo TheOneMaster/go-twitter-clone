@@ -31,3 +31,11 @@ h1 {
 nav a {
     @apply text-white p-5 bg-white/5 hover:scale-105 hover:bg-white/20
 }
+
+.message-loading {
+    @apply -z-10
+}
+
+.htmx-request .message-loading {
+    @apply z-10
+}
