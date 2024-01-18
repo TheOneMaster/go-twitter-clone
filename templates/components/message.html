@@ -1,27 +1,25 @@
-{{$userPhoto := "/static/profile.png"}}
-{{if .Photo}}
-{{$userPhoto = .Photo}}
-{{end}}
-
 {{$likedColor := "none"}}
 {{if .Liked}}
 {{$likedColor = "red"}}
 {{end}}
 
-<div hx-get="/message/{{.ID}}" hx-trigger="reload-message-{{.ID}} from:body" hx-target="this" hx-swap="outerHTML">
+<div hx-get="/message/{{.ID}}" hx-trigger="reload-message-{{.ID}} from:body" hx-target="this" hx-swap="outerHTML" hx-indicator="this"
+    class="relative">
     <div id="/message/{{.ID}}"
-        class="bg-slate-700 rounded-sm px-4 py-3 flex {{if .Selected}}border border-cyan-400 border-dashed{{end}}"
+        class="bg-white/10 rounded-sm px-4 py-3 flex {{if .Selected}}border border-cyan-400 border-dashed{{end}}"
         hx-get="/replies/{{.ID}}"
         hx-swap="innerHTML"
         hx-target="#replyList"
         hx-trigger="click consume">
-        <img  src="{{$userPhoto}}" alt="profile-image" class="w-24 h-24 rounded-full border-4 border-slate-500 mr-4" />
+        <img  src="{{.User.ProfilePhoto}}" alt="profile-image" class="w-24 h-24 rounded-full border-4 border-slate-500 mr-4" />
         <div class="flex flex-col flex-1">
-            <h3 class="font-bold text-white">{{.Author}}</h3>
+            <a href="/profile/{{.User.Username}}" class="self-start text-white hover:text-yellow-400/70 hover:underline">
+                <h3 class="font-bold inline-block">{{.User.DisplayName}}</h3>
+            </a>
 
             <p class="text-white">{{.Data}}</p>
 
-            <div class="mt-auto pt-4 flex flex-row">
+            <div class="mt-auto pt-4 flex flex-row items-end">
                 <span class="text-slate-400 font-light">{{.Time}}</span>
 
                 <div class="ml-auto self-end">
@@ -29,5 +27,12 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="absolute flex items-center justify-center bottom-0 left-0 w-full h-full bg-black/50 htmx-indicator message-loading">
+            <img src="/static/tail-spin.svg" alt="loading-indicator" class="size-6">
+        </div>
+
     </div>
+
 </div>

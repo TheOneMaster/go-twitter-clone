@@ -1,11 +1,11 @@
-<div class="flex flex-col gap-y-4 overflow-y-scroll"
+<div class="flex flex-col gap-y-4 overflow-y-auto"
     hx-target="this"
     hx-swap="outerHTML"
     hx-trigger="reload-messages from:body"
     hx-indicator="#message-loading">
 
     {{if not .}}
-        <div>No messages</div>
+        <div class="text-white">No messages</div>
     {{else}}
         {{range .}}
             {{template "message.html" .}}

@@ -31,6 +31,7 @@ func ServeStaticPage(pageFile string, w http.ResponseWriter) {
 		PageNotFound(w)
 	}
 
+	w.Header().Add("Content-Type", "text-html")
 	err = t.Execute(w, nil)
 	if err != nil {
 		ServerError(w)
@@ -42,6 +43,9 @@ func ServeFragment(w http.ResponseWriter, fragment string, data any) {
 	if err != nil {
 		ServerError(w)
 	}
+
+	w.Header().Add("Content-Type", "text/html")
+
 	err = t.Execute(w, data)
 	if err != nil {
 		ServerError(w)

@@ -8,23 +8,33 @@ import (
 	"github.com/TheOneMaster/go-twitter-clone/templates"
 )
 
+// Template for reading data from database for message
 type Message struct {
 	Id          int
-	Author      int
 	ParentID    sql.NullInt32 `db:"parentID"`
 	MessageText string        `db:"messageText"`
 	PostTime    time.Time     `db:"postTime"`
+	Liked       int
+	MessageUser
 }
 
-func (msg *Message) VerifyExists() bool {
-	var count int
-	err := Connection.Get(&count, "SELECT 1 FROM Messages WHERE id=?", msg.Id)
+type MessageUser struct {
+	Id           int `db:"author"`
+	Username     string
+	DisplayName  string         `db:"displayName"`
+	ProfilePhoto sql.NullString `db:"profilePhoto"`
+}
 
-	if err != nil || count == 0 {
-		return false
-	}
+type Reply struct {
+	Message
+	Level int
+}
 
-	return true
+func (msg *Message) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Int("id", msg.Id),
+		slog.Int("author", msg.MessageUser.Id),
+	)
 }
 
 func (msg *Message) Save() error {
@@ -41,32 +51,11 @@ func (msg *Message) Edit(newMessage string) error {
 	return err
 }
 
-func (msg *Message) GetDetails() error {
-	query := `
-	SELECT *
-	FROM Messages
-	WHERE id = ?
-	;`
-
-	err := Connection.Get(msg, query, msg.Id)
-	return err
-}
-
 func (msg *Message) GetReplies(user *User) templates.MessageList {
 	msgList := templates.MessageList{}
-	dbMessages := []struct {
-		Id           int
-		ParentID     sql.NullInt32
-		MessageText  string
-		Author       int
-		DisplayName  string
-		ProfilePhoto sql.NullString
-		PostTime     time.Time
-		Liked        int
-		Level        int
-	}{}
+	dbMessages := []Reply{}
 	query := `
-	WITH RECURSIVE reply(id, parentid, messagetext, author, posttime, level) AS (
+	WITH RECURSIVE reply(id, parentID, messageText, author, postTime, level) AS (
 		SELECT m.id, parentid, messagetext, author, posttime, 0
 		  FROM Messages m
 		  WHERE m.id = ?
@@ -91,7 +80,7 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 		err = Connection.Select(&dbMessages, query, msg.Id)
 	} else {
 		query += `
-		SELECT r.*, displayName as displayname, profilephoto as profilephoto, EXISTS(
+		SELECT r.*, displayName, profilephoto, EXISTS(
 			SELECT 1
 			FROM Likes l
 			WHERE l.messageID = r.id AND l.personID = ?
@@ -108,15 +97,7 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 	}
 
 	for _, msg := range dbMessages {
-		tempMessage := templates.Message{
-			ID:       msg.Id,
-			Author:   msg.DisplayName,
-			Data:     msg.MessageText,
-			Time:     msg.PostTime.Format(time.DateTime),
-			Photo:    msg.ProfilePhoto.String,
-			Selected: false,
-			Liked:    msg.Liked == 1,
-		}
+		tempMessage := msg.ConvertToTemplate()
 
 		msgList = append(msgList, tempMessage)
 	}
@@ -124,32 +105,37 @@ func (msg *Message) GetReplies(user *User) templates.MessageList {
 	return msgList
 }
 
-func (msg *Message) LogValue() slog.Value {
-	return slog.GroupValue(
-		slog.Int("id", msg.Id),
-		slog.Int("author", msg.Author),
-	)
-}
+func (msg *Message) ConvertToTemplate() templates.Message {
 
-func GetTopLevelMessages(id int) (*Message, error) {
-	msg := &Message{}
-	err := Connection.Get(msg, "SELECT * FROM Messages WHERE id==?", id)
-	return msg, err
+	profilePhoto := defaultProfilePhoto
+	if msg.MessageUser.ProfilePhoto.Valid {
+		profilePhoto = msg.ProfilePhoto.String
+	}
+
+	msgUser := templates.MessageUser{
+		Username:     msg.Username,
+		DisplayName:  msg.DisplayName,
+		ProfilePhoto: profilePhoto,
+	}
+
+	liked := msg.Liked == 1
+
+	templateMessage := templates.Message{
+		ID:    msg.Id,
+		Data:  msg.MessageText,
+		Time:  msg.PostTime.Format(time.DateTime),
+		User:  msgUser,
+		Liked: liked,
+	}
+
+	return templateMessage
 }
 
 func GetMessageList(user *User) templates.MessageList {
-	msgList := []struct {
-		Id           int
-		Author       string
-		AuthorID     string
-		MessageText  string         `db:"messageText"`
-		PostTime     time.Time      `db:"postTime"`
-		ProfilePhoto sql.NullString `db:"profilePhoto"`
-		Liked        int
-	}{}
+	msgList := []Message{}
 	messages := templates.MessageList{}
 	query := `
-		SELECT M.id, messageText, postTime, displayName as author, M.author as authorid, profilePhoto
+		SELECT M.id, messageText, postTime, displayName, username, author, profilePhoto
 		FROM Messages as M, Users as U
 		WHERE U.id = M.author AND parentID IS NULL
 		ORDER BY postTime DESC
@@ -158,7 +144,7 @@ func GetMessageList(user *User) templates.MessageList {
 
 	if user.VerifyExists() {
 		query = `
-		SELECT M.id, messageText, postTime, displayName as author, M.author as authorid, profilePhoto, EXISTS (
+		SELECT M.id, messageText, postTime, displayName, username, M.author, profilePhoto, EXISTS (
 			SELECT 1
 			FROM Likes AS l
 			WHERE l.messageID = M.id AND l.personID = ?
@@ -178,35 +164,18 @@ func GetMessageList(user *User) templates.MessageList {
 	}
 
 	for _, msg := range msgList {
-		temp_message := templates.Message{
-			ID:     msg.Id,
-			Author: msg.Author,
-			Data:   msg.MessageText,
-			Time:   msg.PostTime.Format(time.DateTime),
-			Photo:  msg.ProfilePhoto.String,
-			Liked:  msg.Liked == 1,
-		}
-		messages = append(messages, temp_message)
+		templateMsg := msg.ConvertToTemplate()
+		messages = append(messages, templateMsg)
 	}
 
 	return messages
 }
 
-func GetMessage(msgID int, user User) templates.Message {
-	templateMsg := templates.Message{}
-	dbMsg := struct {
-		ID           int
-		Author       int
-		DisplayName  string         `db:"displayName"`
-		ProfilePhoto sql.NullString `db:"profilePhoto"`
-		MessageText  string         `db:"messageText"`
-		PostTime     time.Time      `db:"postTime"`
-		ParentID     int
-		Liked        int
-	}{}
+func GetMessageById(msgID int, user User) (Message, error) {
+	dbMsg := Message{}
 
 	query := `
-	SELECT m.id, author, displayName, profilePhoto, messageText, postTime, author, EXISTS (
+	SELECT m.id, author, displayName, profilePhoto, messageText, postTime, EXISTS (
 		SELECT 1
 		FROM Likes AS l
 		WHERE l.messageid=m.id AND l.personid=?
@@ -216,19 +185,39 @@ func GetMessage(msgID int, user User) templates.Message {
 	`
 
 	err := Connection.Get(&dbMsg, query, user.Id, msgID)
+
 	if err != nil {
 		slog.Error(err.Error())
-		return templateMsg
 	}
 
-	templateMsg = templates.Message{
-		ID:     dbMsg.ID,
-		Author: dbMsg.DisplayName,
-		Data:   dbMsg.MessageText,
-		Time:   dbMsg.PostTime.Format(time.DateTime),
-		Photo:  dbMsg.ProfilePhoto.String,
-		Liked:  dbMsg.Liked == 1,
+	return dbMsg, err
+}
+
+func GetMessagesFromUser(user *User) templates.MessageList {
+	dbMsgList := []Message{}
+	templateMsgList := templates.MessageList{}
+
+	query := `
+	SELECT m.id as id, u.id as author, username, messageText, postTime, displayName, profilePhoto, EXISTS(
+		SELECT 1
+		FROM Likes l
+		WHERE l.messageid = m.id AND l.personid = u.id
+	) as liked
+	FROM Messages m
+	RIGHT JOIN Users u ON u.id = m.author
+	WHERE u.id = ?
+	LIMIT 20;
+	`
+
+	err := Connection.Select(&dbMsgList, query, user.Id)
+	if err != nil {
+		slog.Error(err.Error())
 	}
 
-	return templateMsg
+	for _, msg := range dbMsgList {
+		msgTemplate := msg.ConvertToTemplate()
+		templateMsgList = append(templateMsgList, msgTemplate)
+	}
+
+	return templateMsgList
 }

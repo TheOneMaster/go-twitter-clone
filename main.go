@@ -20,9 +20,10 @@ func main() {
 	portNumber := env.Environment.PortNumber
 
 	r := chi.NewRouter()
+
 	r.Use(middleware.Logger)
+	r.Use(middleware.Compress(5))
 	r.Use(handlers.ValidateSession)
-	// r.Use(handlers.Validate)
 
 	fs := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
@@ -41,6 +42,7 @@ func main() {
 	// Dynamic routes
 	r.Get("/message/*", handlers.GetMessage)
 	r.Get("/replies/*", handlers.ReplyHandler)
+	r.Get("/profile/*", handlers.ProfileHandler)
 
 	r.Post("/like/*", handlers.LikeMessage)
 

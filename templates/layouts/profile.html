@@ -1,0 +1,23 @@
+{{define "title"}}{{.User.DisplayName}} (@{{.User.Username}})'s Profile{{end}}
+
+{{define "content"}}
+<div class="flex flex-row">
+    {{template "sideBar.html" .Sidebar}}
+    <div class="flex-1">
+        <img src={{.User.BannerPhoto}} alt="bannerImage" class="w-full max-h-60" />
+        <div class="flex flex-row px-4 py-2">
+            <img src={{.User.ProfilePhoto}} alt="profileImage" class="h-20 w-20 profile-photo" />
+            <div class="flex-1 pl-3">
+                <h1 class="text-white text-xl">{{.User.DisplayName}}</h1>
+                <h2 class="text-white/80">@{{.User.Username}}</h2>
+            </div>
+        </div>
+        <div class="pl-3">
+            <h2 class="text-white">Messages</h2>
+            <div id="messageList">
+                {{template "messageList.html" .Messages}}
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

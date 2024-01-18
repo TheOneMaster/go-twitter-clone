@@ -17,11 +17,9 @@ func ToggleLikeMessage(msg *Message, user *User) (bool, error) {
 
 	alreadyLiked := numRows == 1
 
-	query := ""
+	query := "INSERT INTO Likes(messageID, personID) VALUES (?, ?)"
 	if alreadyLiked {
 		query = "DELETE FROM Likes WHERE messageID=? AND personID=?"
-	} else {
-		query = "INSERT INTO Likes(messageID, personID) VALUES (?, ?)"
 	}
 
 	_, err := Connection.Exec(query, msg.Id, user.Id)

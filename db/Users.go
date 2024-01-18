@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"log/slog"
+	"time"
 
+	"github.com/TheOneMaster/go-twitter-clone/templates"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,10 +14,13 @@ type User struct {
 	Username     string
 	DisplayName  string         `db:"displayName"`
 	ProfilePhoto sql.NullString `db:"profilePhoto"`
-	BannerPhoto  string         `db:"bannerPhoto"`
-	CreationTime string         `db:"creationTime"`
+	BannerPhoto  sql.NullString `db:"bannerPhoto"`
+	CreationTime time.Time      `db:"creationTime"`
 	Password     string
 }
+
+const defaultProfilePhoto = "/static/profile.png"
+const defaultBannerPhoto = "/static/banner.avif"
 
 func (user *User) VerifyExists() bool {
 	var count int
@@ -41,7 +46,6 @@ func (user *User) Save() error {
 		slog.Error(err.Error(), "user", user)
 	}
 
-	slog.Info("Inserted user", "user", user)
 	return err
 }
 
@@ -86,4 +90,55 @@ func (user *User) LogValue() slog.Value {
 		slog.Int("id", user.Id),
 		slog.String("username", user.Username),
 	)
+}
+
+func (user *User) GetTemplateDetails() templates.ProfileUser {
+
+	profilePhoto, bannerPhoto := defaultProfilePhoto, defaultBannerPhoto
+	if user.ProfilePhoto.Valid && user.ProfilePhoto.String != "" {
+		profilePhoto = user.ProfilePhoto.String
+	}
+	if user.BannerPhoto.Valid && user.BannerPhoto.String != "" {
+		bannerPhoto = user.BannerPhoto.String
+	}
+
+	return templates.ProfileUser{
+		Id:           user.Id,
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfilePhoto: profilePhoto,
+		BannerPhoto:  bannerPhoto,
+		CreationTime: user.CreationTime.Format(time.DateOnly),
+	}
+}
+
+func (user *User) GetSidebarDetails() templates.SideBarUser {
+	profilePhoto := defaultProfilePhoto
+	if user.ProfilePhoto.Valid && user.ProfilePhoto.String != "" {
+		profilePhoto = user.ProfilePhoto.String
+	}
+
+	return templates.SideBarUser{
+		Username:     user.Username,
+		DisplayName:  user.DisplayName,
+		ProfilePhoto: profilePhoto,
+	}
+}
+
+func GetUserFromUsername(username string) (*User, error) {
+	user := User{}
+	err := Connection.Get(&user, "SELECT * FROM Users WHERE username=?", username)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+	return &user, err
+}
+
+func GetUserFromId(id int) (User, error) {
+	user := User{}
+	err := Connection.Get(&user, "SELECT * FROM Users WHERE id=?", id)
+	if err != nil {
+		slog.Error(err.Error())
+	}
+	return user, err
 }
