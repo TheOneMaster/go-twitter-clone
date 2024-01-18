@@ -4,6 +4,4 @@ A website built to mimic the functionality of Twitter. Project to learn Go + HTM
 
 ## TODO:
 - Posting
-- Add user accounts
 - Better Frontend
-- Better HTMX Integration
